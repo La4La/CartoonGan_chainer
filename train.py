@@ -24,6 +24,7 @@ def main():
     parser.add_argument('--resume', '-r', default='', help='snapshot No.')
     parser.add_argument('--model_num', '-m', default='', help='generater No.')
     parser.add_argument('--snapshot_interval', type=int, default=1000)
+    parser.add_argument('--test_interval', type=int, default=100)
     parser.add_argument('--display_interval', type=int, default=5)
     parser.add_argument('--size', type=int, default=256)
     parser.add_argument('--use_gan', '-G', action='store_true')
@@ -89,6 +90,7 @@ def main():
 
     # trainer extensions
     snapshot_interval = (args.snapshot_interval, 'iteration')
+    test_interval = (args.test_interval, 'iteration')
     trainer.extend(extensions.dump_graph('gen/loss'))
     trainer.extend(
         extensions.snapshot(filename='snapshot_iter_{.updater.iteration}.npz'),
@@ -103,6 +105,7 @@ def main():
             dis, 'dis_iter_{.updater.iteration}.npz'), trigger=snapshot_interval)
     trainer.extend(extensions.PrintReport(report))
     trainer.extend(extensions.ProgressBar(update_interval=args.display_interval))
+    trainer.extend(photos.visualizer(), trigger=test_interval)
 
     trainer.run()
 

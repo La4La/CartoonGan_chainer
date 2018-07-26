@@ -3,7 +3,7 @@ from random import randint
 import numpy as np
 import cv2
 import chainer
-
+import os
 
 class PreprocessedDataset(chainer.dataset.DatasetMixin):
     def __init__(self, path, crop_size):
@@ -19,7 +19,7 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
 
     @staticmethod
     def tochainer(cv2_image):
-        return cv2_image.astype(np.float32).transpose((2, 0, 1)) / 255.0
+        return cv2_image.astype(np.float32).transpose((2, 0, 1))# / 255.0
 
 
 class PhotoDataset(PreprocessedDataset):
@@ -41,7 +41,33 @@ class PhotoDataset(PreprocessedDataset):
         image = image[crop_h: crop_h + self._crop_size, crop_w: crop_w + self._crop_size, :]
         return self.tochainer(image)
 
-    # TODO: test code
+    def visualizer(self, output_path='preview', n=4):
+        @chainer.training.make_extension()
+        def make_image(trainer):
+            updater = trainer.updater
+            output = os.path.join(trainer.out, output_path)
+            os.makedirs(output, exist_ok=True)
+
+            rows = []
+            for i in range(n):
+                photo = updater.converter(updater.get_iterator("main").next(), updater.device)
+
+                # turn off train mode
+                with chainer.using_config('train', False):
+                    generated = updater.get_optimizer("gen").target(photo).data
+
+                # convert to cv2 image
+                generated = generated[0].transpose(1, 2, 0)
+                photo = photo[0].transpose(1, 2, 0)
+
+                # return image from device if necessary
+                if updater.device >= 0:
+                    generated = generated.get()
+                    photo = photo.get()
+
+                rows.append(np.hstack((photo, generated)).astype(np.uint8))
+            cv2.imwrite(os.path.join(output, "iter_{}.png".format(updater.iteration)), np.vstack(rows))
+        return make_image
 
 
 class ImageDataset(PreprocessedDataset):

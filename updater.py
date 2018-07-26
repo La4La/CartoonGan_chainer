@@ -22,7 +22,8 @@ class CartoonGAN(chainer.training.StandardUpdater):
         image_gen = self.gen(photo)
 
         # gen content loss
-        loss_content = F.mean_absolute_error(self.vgg(photo), self.vgg(image_gen.array))
+        loss_content = F.mean_absolute_error(photo, image_gen)
+        # loss_content = F.mean_absolute_error(self.vgg(photo), self.vgg(image_gen.array))
         gen_loss = self.w * loss_content
 
         if self.dis is not None:

@@ -163,7 +163,7 @@ class VGG(chainer.Chain):
         self._using_layer = "conv4_3"
 
     def __call__(self, x):
-        x = x.transpose(0, 2, 3, 1) * 255
+        x = x.transpose(0, 2, 3, 1) #* 255
         mean = self.xp.array([103.939, 116.779, 123.68], dtype=np.float32)
         x = x - mean
         x = x.transpose(0, 3, 1, 2)
