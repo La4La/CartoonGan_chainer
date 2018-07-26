@@ -42,7 +42,7 @@ def main():
         dis = None
 
     # Setup datasets
-    photos = PhotoDataset(os.path.join(args.root, 'photos', '*', '*'), crop_size=args.size)
+    photos = PhotoDataset(os.path.join(args.root, 'photos_resized', '*'), crop_size=args.size)
     photos_iter = chainer.iterators.SerialIterator(photos, args.batchsize)
     if args.use_gan:
         illusts = ImageDataset(os.path.join(args.root, 'illusts', '*', '*', '*'), crop_size=args.size)

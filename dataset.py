@@ -27,8 +27,10 @@ class PhotoDataset(PreprocessedDataset):
         super().__init__(path, crop_size)
 
     def get_example(self, i):
+        n = 1
         while True:
             try:
+                n += 1
                 image = cv2.imread(self._path[i], cv2.IMREAD_COLOR)
                 assert image is not None
                 h, w, _ = image.shape
