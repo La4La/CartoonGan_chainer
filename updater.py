@@ -22,9 +22,12 @@ class CartoonGAN(chainer.training.StandardUpdater):
         image_gen = self.gen(photo)
 
         # gen content loss
-        # loss_content = F.mean_absolute_error(photo, image_gen)
+
         loss_content = F.mean_absolute_error(self.vgg(photo), self.vgg(image_gen.array))
         gen_loss = self.w * loss_content
+
+        loss_mae = F.mean_absolute_error(photo, image_gen)
+        gen_loss += loss_mae
 
         if self.dis is not None:
             opt_dis = self.get_optimizer('dis')
@@ -62,4 +65,4 @@ class CartoonGAN(chainer.training.StandardUpdater):
 
         # update gen
         _update(opt_gen, gen_loss)
-        chainer.report({'loss': gen_loss, 'content': loss_content}, self.gen)
+        chainer.report({'loss': gen_loss, 'content': loss_content, 'mae': loss_mae}, self.gen)

@@ -75,14 +75,14 @@ def main():
         iterator=iterators,
         optimizer=optimizers,
         device=args.gpu,
-        w=10
+        w=2
     )
     out = os.path.join(args.out, 'gan') if args.use_gan else os.path.join(args.out, 'initial')
     trainer = training.Trainer(updater, (args.epoch, 'epoch'), out=out)
 
     # Load npz if necessary
     if args.resume:
-        chainer.serializers.load_npz(os.path.join(args.out, 'snapshot_iter_'+args.resume+'.npz'), trainer)
+        chainer.serializers.load_npz(os.path.join(out, 'snapshot_iter_'+args.resume+'.npz'), trainer)
         print('snapshot {} loaded\n'.format(args.resume))
     elif args.model_num:
         chainer.serializers.load_npz(os.path.join(args.out, 'initial', 'gen_iter_'+args.model_num+'.npz'), gen)
@@ -98,7 +98,7 @@ def main():
     trainer.extend(extensions.snapshot_object(
         gen, 'gen_iter_{.updater.iteration}.npz'), trigger=snapshot_interval)
     trainer.extend(extensions.LogReport(trigger=(args.display_interval, 'iteration'), ))
-    report = ['epoch', 'iteration', 'gen/content']
+    report = ['epoch', 'iteration', 'gen/loss', 'gen/content', 'gen/mae']
     if args.use_gan:
         report += ['gen/loss', 'dis/loss']
         trainer.extend(extensions.snapshot_object(

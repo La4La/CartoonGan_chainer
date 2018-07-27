@@ -35,11 +35,24 @@ class PhotoDataset(PreprocessedDataset):
                 assert image is not None
                 h, w, _ = image.shape
                 assert (w >= self._crop_size and h >= self._crop_size)
+
+                # random rescale
+                rescale_size = np.random.randint(self._crop_size, min(h, w) + 1)
+                if h <= w:
+                    h_ = int(rescale_size)
+                    w_ = int(rescale_size * (w / h))
+                else:
+                    w_ = int(rescale_size)
+                    h_ = int(rescale_size * (h / w))
+                image = cv2.resize(image, (w_, h_), interpolation=cv2.INTER_AREA)
+
                 break
             except AssertionError:
                 i = (i + np.random.randint(1, self._length)) % self._length
-        crop_w = randint(0, w - self._crop_size)
-        crop_h = randint(0, h - self._crop_size)
+
+        # random crop
+        crop_w = randint(0, w_ - self._crop_size)
+        crop_h = randint(0, h_ - self._crop_size)
         image = image[crop_h: crop_h + self._crop_size, crop_w: crop_w + self._crop_size, :]
         return self.tochainer(image)
 

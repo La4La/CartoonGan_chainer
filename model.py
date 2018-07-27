@@ -100,6 +100,8 @@ class Generator(chainer.Chain):
         h = F.relu(self.up_bn1(self.up_conv2(self.up_conv1(h))))
         h = F.relu(self.up_bn2(self.up_conv4(self.up_conv3(h))))
         h = self.out_conv(h)
+
+        h = F.clip(h, 0.0, 255.0)
         return h
 
 
