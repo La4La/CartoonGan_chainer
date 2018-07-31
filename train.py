@@ -75,7 +75,7 @@ def main():
         iterator=iterators,
         optimizer=optimizers,
         device=args.gpu,
-        w=2
+        w=10
     )
     out = os.path.join(args.out, 'gan') if args.use_gan else os.path.join(args.out, 'initial')
     trainer = training.Trainer(updater, (args.epoch, 'epoch'), out=out)
@@ -100,7 +100,7 @@ def main():
     trainer.extend(extensions.LogReport(trigger=(args.display_interval, 'iteration'), ))
     report = ['epoch', 'iteration', 'gen/loss', 'gen/content', 'gen/mae']
     if args.use_gan:
-        report += ['gen/loss', 'dis/loss']
+        report += ['gen/adv', 'dis/illust', 'dis/edge', 'dis/photo', 'dis/loss']
         trainer.extend(extensions.snapshot_object(
             dis, 'dis_iter_{.updater.iteration}.npz'), trigger=snapshot_interval)
     trainer.extend(extensions.PrintReport(report))

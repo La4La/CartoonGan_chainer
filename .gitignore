@@ -1,3 +1,6 @@
 .idea/
 initial/
 resize_photos.py
+gan/
+sn/
+.DS_Store
